@@ -3,7 +3,8 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
-from PIL import Image  # Import the Image class from PIL
+from PIL import Image
+from scipy.spatial.distance import pdist, squareform
 
 st.title("OpenCV Demo App")
 st.subheader("This app allows you to play with Image filters!")
@@ -62,31 +63,52 @@ if control_image is not None and experimental_image is not None:
     )
 
     # Extract the annotations from the canvas result
+    control_nucleus_positions = []
     if control_canvas_result.json_data is not None:
         control_nucleus_positions = [(shape['left'], shape['top']) for shape in control_canvas_result.json_data['objects']]
         st.write(f"Control Nucleus positions: {control_nucleus_positions}")
 
+    experimental_nucleus_positions = []
     if experimental_canvas_result.json_data is not None:
         experimental_nucleus_positions = [(shape['left'], shape['top']) for shape in experimental_canvas_result.json_data['objects']]
         st.write(f"Experimental Nucleus positions: {experimental_nucleus_positions}")
 
-    # Create a figure to display images and plots
-    fig, axs = plt.subplots(1, 2, figsize=(18, 12))
+    # Button to process and display plots
+    if st.button("Process"):
+        if control_nucleus_positions and experimental_nucleus_positions:
+            # Calculate distances
+            control_distances = pdist(control_nucleus_positions)
+            experimental_distances = pdist(experimental_nucleus_positions)
 
-    # Display the control image with annotated nuclei positions
-    axs[0].imshow(control_image_rgb)
-    axs[0].set_title('Control Image')
-    axs[0].axis('off')
-    for position in control_nucleus_positions:
-        axs[0].plot(position[0], position[1], marker='o', markersize=6, color='green')
+            # Merge nucleus positions if both groups have the same number of positions
+            if len(control_nucleus_positions) == len(experimental_nucleus_positions):
+                merged_positions = np.concatenate((control_nucleus_positions, experimental_nucleus_positions), axis=0)
 
-    # Display the experimental image with annotated nuclei positions
-    axs[1].imshow(experimental_image_rgb)
-    axs[1].set_title('Experimental Image')
-    axs[1].axis('off')
-    for position in experimental_nucleus_positions:
-        axs[1].plot(position[0], position[1], marker='o', markersize=6, color='yellow')
+                # Create a figure to display images and plots
+                fig, ax = plt.subplots(figsize=(8, 8))
 
-    st.pyplot(fig)
-else:
-    st.warning("Please upload both control and experimental images to proceed.")
+                # Display control group nucleus positions
+                control_positions = np.array(control_nucleus_positions)
+                ax.scatter(control_positions[:, 0], control_positions[:, 1], color='green', label='Control')
+
+                # Display experimental group nucleus positions
+                experimental_positions = np.array(experimental_nucleus_positions)
+                ax.scatter(experimental_positions[:, 0], experimental_positions[:, 1], color='blue', label='Experimental')
+
+                ax.set_title('Merged Nucleus Positions')
+                ax.set_xlabel('X-coordinate')
+                ax.set_ylabel('Y-coordinate')
+                ax.invert_yaxis()  # Invert y-axis to match image coordinates
+                ax.legend()
+
+                # Show the plot
+                plt.tight_layout()
+
+                # Download plot button
+                st.pyplot(fig)
+                
+            else:
+                st.warning("Number of nucleus positions in control and experimental groups are different. Cannot merge.")
+        else:
+            st.warning("Please annotate both control and experimental images.")
+
