@@ -13,3 +13,7 @@
     ```bash
     pip install -r requirements.txt
     ``` 
+4. Install openpyxl and required dependencies:
+    ```bash
+    pip install openpyxl
+    ``` 
