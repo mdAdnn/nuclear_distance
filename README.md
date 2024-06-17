@@ -9,11 +9,15 @@
    ```bash
     venv\scripts\activate
     ```
-3. Install Python and required dependencies:
+3. Install OpenCV and Streamlit using pip. You would also need Pillow — another image library.
+    ```bash
+    pip install opencv-python streamlit Pillow
+    ```
+4. Install Python and required dependencies:
     ```bash
     pip install -r requirements.txt
     ``` 
-4. Install openpyxl and required dependencies:
+5. Install openpyxl and required dependencies:
     ```bash
     pip install openpyxl
     ``` 
