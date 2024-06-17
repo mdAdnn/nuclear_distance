@@ -1,71 +1,92 @@
 import cv2
 import streamlit as st
-import openpyxl
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy.spatial.distance import pdist, squareform
-import pandas as pd
-import seaborn as sns  # Import Seaborn for KDE plots
-from PIL import Image
-
+import matplotlib.pyplot as plt
+from streamlit_drawable_canvas import st_canvas
+from PIL import Image  # Import the Image class from PIL
 
 st.title("OpenCV Demo App")
 st.subheader("This app allows you to play with Image filters!")
 st.text("We use OpenCV and Streamlit for this demo")
 
-# Function to calculate Euclidean distance between two points
-def calculate_distance(point1, point2):
-    return np.linalg.norm(np.array(point1) - np.array(point2))
+# Upload options for control and experimental images
+control_uploaded_file = st.file_uploader("Choose a Control Image", type=["jpeg", "png"])
+experimental_uploaded_file = st.file_uploader("Choose an Experimental Image", type=["jpeg", "png"])
 
-# Function to calculate Euclidean distance between two points in millimeters
-def calculate_distance_mm(point1, point2, scale_mm_per_pixel):
-    distance_pixels = calculate_distance(point1, point2)
-    distance_mm = distance_pixels * scale_mm_per_pixel
-    return distance_mm
+# Function to convert uploaded file to OpenCV image
+def uploaded_file_to_cv2_image(uploaded_file):
+    if uploaded_file is not None:
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        image = cv2.imdecode(file_bytes, 1)
+        return image
+    return None
 
-# Global variables to store the nucleus positions for control and experimental groups
-control_nucleus_positions = []
-experimental_nucleus_positions = []
+# Process the uploaded control image
+control_image = uploaded_file_to_cv2_image(control_uploaded_file)
 
-# Mouse callback function
-def mouse_callback(event, x, y, flags, param):
-    global control_nucleus_positions, experimental_nucleus_positions
-    if event == cv2.EVENT_LBUTTONDOWN:
-        # Check if the mouse click is for the control image or the experimental image
-        if param == 'control':
-            control_nucleus_positions.append((x, y))
-            print("Control Nucleus positions:", control_nucleus_positions)
-        elif param == 'experimental':
-            experimental_nucleus_positions.append((x, y))
-            print("Experimental Nucleus positions:", experimental_nucleus_positions)
+# Process the uploaded experimental image
+experimental_image = uploaded_file_to_cv2_image(experimental_uploaded_file)
 
-# Paths to the image files for control and experimental groups
-control_file_path = r"C:\Users\fcbwa\OneDrive\Desktop\NNA\Nucleia-Distance\CHD1_NLS\JPG\Females\Control\A3 L.jpg"
-experimental_file_path = r"C:\Users\fcbwa\OneDrive\Desktop\NNA\Nucleia-Distance\CHD1_NLS\JPG\Males\Experiments\A3 L.jpg"
+# Display images and provide annotation canvas
+if control_image is not None and experimental_image is not None:
+    st.success("Both images uploaded successfully. Proceed with annotation.")
 
-# Load the control image
-control_image = cv2.imread(control_file_path)
-if control_image is None:
-    print("Error: Unable to load the control image.")
-    exit()
-print("Control Image loaded successfully.")
+    # Convert images to RGB for display in Streamlit
+    control_image_rgb = cv2.cvtColor(control_image, cv2.COLOR_BGR2RGB)
+    experimental_image_rgb = cv2.cvtColor(experimental_image, cv2.COLOR_BGR2RGB)
 
-# Load the experimental image
-experimental_image = cv2.imread(experimental_file_path)
-if experimental_image is None:
-    print("Error: Unable to load the experimental image.")
-    exit()
-print("Experimental Image loaded successfully.")
+    st.write("Annotate the Control Image:")
+    control_canvas_result = st_canvas(
+        fill_color="rgba(255, 165, 0, 0.3)",
+        stroke_width=2,
+        stroke_color="green",
+        background_image=Image.fromarray(control_image_rgb),
+        update_streamlit=True,
+        height=control_image.shape[0],
+        width=control_image.shape[1],
+        drawing_mode="circle",
+        key="control_canvas",
+    )
 
-# Display the control image for annotation
-cv2.imshow('Control Image for Annotation', control_image)
-cv2.setMouseCallback('Control Image for Annotation', mouse_callback, param='control')
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    st.write("Annotate the Experimental Image:")
+    experimental_canvas_result = st_canvas(
+        fill_color="rgba(255, 165, 0, 0.3)",
+        stroke_width=2,
+        stroke_color="yellow",
+        background_image=Image.fromarray(experimental_image_rgb),
+        update_streamlit=True,
+        height=experimental_image.shape[0],
+        width=experimental_image.shape[1],
+        drawing_mode="circle",
+        key="experimental_canvas",
+    )
 
-# Display the experimental image for annotation
-cv2.imshow('Experimental Image for Annotation', experimental_image)
-cv2.setMouseCallback('Experimental Image for Annotation', mouse_callback, param='experimental')
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    # Extract the annotations from the canvas result
+    if control_canvas_result.json_data is not None:
+        control_nucleus_positions = [(shape['left'], shape['top']) for shape in control_canvas_result.json_data['objects']]
+        st.write(f"Control Nucleus positions: {control_nucleus_positions}")
 
+    if experimental_canvas_result.json_data is not None:
+        experimental_nucleus_positions = [(shape['left'], shape['top']) for shape in experimental_canvas_result.json_data['objects']]
+        st.write(f"Experimental Nucleus positions: {experimental_nucleus_positions}")
+
+    # Create a figure to display images and plots
+    fig, axs = plt.subplots(1, 2, figsize=(18, 12))
+
+    # Display the control image with annotated nuclei positions
+    axs[0].imshow(control_image_rgb)
+    axs[0].set_title('Control Image')
+    axs[0].axis('off')
+    for position in control_nucleus_positions:
+        axs[0].plot(position[0], position[1], marker='o', markersize=6, color='green')
+
+    # Display the experimental image with annotated nuclei positions
+    axs[1].imshow(experimental_image_rgb)
+    axs[1].set_title('Experimental Image')
+    axs[1].axis('off')
+    for position in experimental_nucleus_positions:
+        axs[1].plot(position[0], position[1], marker='o', markersize=6, color='yellow')
+
+    st.pyplot(fig)
+else:
+    st.warning("Please upload both control and experimental images to proceed.")
