@@ -1,6 +1,10 @@
+streamlit
 opencv-python
+openpyxl
 matplotlib
 numpy
 scipy
 pandas
 seaborn
+pillow
+streamlit-drawable-canvas
