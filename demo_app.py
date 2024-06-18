@@ -160,3 +160,4 @@ if all_images_uploaded:
             st.warning("Please annotate all control and experimental images.")
 else:
     st.warning("Please upload all required images.")
+    
