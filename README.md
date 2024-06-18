@@ -35,7 +35,7 @@ This Python script performs analysis on the distances between nucleus positions 
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/Foysalgebt12/Nucleia-Distance
+    git clone https://github.com/mdAdnn/nuclear_distance.git
     ```
 
 2. Install Python and required dependencies:
