@@ -21,3 +21,11 @@
     ```bash
     pip install openpyxl
     ``` 
+6. Install streamlit-drawable-canvas for being able to annotate the image:
+   ```bash
+   pip install streamlit-drawable-canvas
+   ```
+7. To run the application:
+   ```bash
+   streamlit run demo-app.py
+   ```
