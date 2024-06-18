@@ -44,14 +44,17 @@ This Python script performs analysis on the distances between nucleus positions 
     ```
 3. Run the script:
    ```bash
-   streamlit run demo-app.py
+   streamlit run Welcome.py
    ```
+
+## Navigating through the web-app.
+ - To display more pages and options, click on the arrow in the top left corner.
 
 ## Follow the instructions to annotate nucleus positions on control and experimental images.
 
 1. Run the Python Script: Execute the Python script provided in the project directory by running the following command in your terminal or command prompt:
     ```bash
-    streamlit run demo-app.py
+    streamlit run Welcome.py
     ```
 2. Upload the images of controls and experiments:
    - Once the script is running, it will open the web page.
