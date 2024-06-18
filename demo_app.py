@@ -7,24 +7,35 @@ from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 from scipy.spatial.distance import pdist
 
-st.title("OpenCV Demo App")
-st.subheader("This app allows you to play with Image filters!")
-st.text("We use OpenCV and Streamlit for this demo")
+# Set page configuration
+st.set_page_config(
+    layout="wide",
+    page_title="Nuclear Distance Analysis",
+    page_icon="🖥",
+)
+st.title("Nuclear Distance Analysis")
+st.subheader("This app allows you to annotate nuclear distance of the drosophilla muscles!")
 
-# Upload options for control and experimental images
-control_uploaded_files = {
-    'A3L': st.file_uploader("Choose a Control Image A3L", type=["jpeg", "png"]),
-    'A3R': st.file_uploader("Choose a Control Image A3R", type=["jpeg", "png"]),
-    'A4L': st.file_uploader("Choose a Control Image A4L", type=["jpeg", "png"]),
-    'A4R': st.file_uploader("Choose a Control Image A4R", type=["jpeg", "png"]),
-}
+# Create columns for side-by-side upload options
+col1, col2 = st.columns(2)
 
-experimental_uploaded_files = {
-    'A3L': st.file_uploader("Choose an Experimental Image A3L", type=["jpeg", "png"]),
-    'A3R': st.file_uploader("Choose an Experimental Image A3R", type=["jpeg", "png"]),
-    'A4L': st.file_uploader("Choose an Experimental Image A4L", type=["jpeg", "png"]),
-    'A4R': st.file_uploader("Choose an Experimental Image A4R", type=["jpeg", "png"]),
-}
+with col1:
+    st.header("Control Images")
+    control_uploaded_files = {
+        'A3L': st.file_uploader("Choose a Control Image A3L", type=["jpeg", "png"]),
+        'A3R': st.file_uploader("Choose a Control Image A3R", type=["jpeg", "png"]),
+        'A4L': st.file_uploader("Choose a Control Image A4L", type=["jpeg", "png"]),
+        'A4R': st.file_uploader("Choose a Control Image A4R", type=["jpeg", "png"]),
+    }
+
+with col2:
+    st.header("Experimental Images")
+    experimental_uploaded_files = {
+        'A3L': st.file_uploader("Choose an Experimental Image A3L", type=["jpeg", "png"]),
+        'A3R': st.file_uploader("Choose an Experimental Image A3R", type=["jpeg", "png"]),
+        'A4L': st.file_uploader("Choose an Experimental Image A4L", type=["jpeg", "png"]),
+        'A4R': st.file_uploader("Choose an Experimental Image A4R", type=["jpeg", "png"]),
+    }
 
 # Function to convert uploaded file to OpenCV image
 def uploaded_file_to_cv2_image(uploaded_file):
@@ -160,4 +171,4 @@ if all_images_uploaded:
             st.warning("Please annotate all control and experimental images.")
 else:
     st.warning("Please upload all required images.")
-    
+
