@@ -49,57 +49,57 @@ def uploaded_file_to_cv2_image(uploaded_file):
 control_images = {key: uploaded_file_to_cv2_image(file) for key, file in control_uploaded_files.items()}
 experimental_images = {key: uploaded_file_to_cv2_image(file) for key, file in experimental_uploaded_files.items()}
 
-# Check if all images are uploaded
-all_control_images_uploaded = all(img is not None for img in control_images.values())
-all_experimental_images_uploaded = all(img is not None for img in experimental_images.values())
-all_images_uploaded = all_control_images_uploaded and all_experimental_images_uploaded
+# Collect all uploaded images
+uploaded_control_images = {key: img for key, img in control_images.items() if img is not None}
+uploaded_experimental_images = {key: img for key, img in experimental_images.items() if img is not None}
 
-# Display images and provide annotation canvas
-if all_images_uploaded:
-    st.success("All images uploaded successfully. Proceed with annotation.")
+# Check if at least one pair of images is uploaded
+if uploaded_control_images and uploaded_experimental_images:
+    st.success("Some images uploaded successfully. Proceed with annotation.")
 
     control_nucleus_positions = []
     experimental_nucleus_positions = []
 
-    for key in control_images:
-        control_image = control_images[key]
-        experimental_image = experimental_images[key]
+    for key in uploaded_control_images:
+        if key in uploaded_experimental_images:
+            control_image = uploaded_control_images[key]
+            experimental_image = uploaded_experimental_images[key]
 
-        # Convert images to RGB for display in Streamlit
-        control_image_rgb = cv2.cvtColor(control_image, cv2.COLOR_BGR2RGB)
-        experimental_image_rgb = cv2.cvtColor(experimental_image, cv2.COLOR_BGR2RGB)
+            # Convert images to RGB for display in Streamlit
+            control_image_rgb = cv2.cvtColor(control_image, cv2.COLOR_BGR2RGB)
+            experimental_image_rgb = cv2.cvtColor(experimental_image, cv2.COLOR_BGR2RGB)
 
-        st.write(f"Annotate the Control Image {key}:")
-        control_canvas_result = st_canvas(
-            fill_color="rgba(255, 165, 0, 0.3)",
-            stroke_width=2,
-            stroke_color="green",
-            background_image=Image.fromarray(control_image_rgb),
-            update_streamlit=True,
-            height=control_image.shape[0],
-            width=control_image.shape[1],
-            drawing_mode="circle",
-            key=f"control_canvas_{key}",
-        )
+            st.write(f"Annotate the Control Image {key}:")
+            control_canvas_result = st_canvas(
+                fill_color="rgba(255, 165, 0, 0.3)",
+                stroke_width=2,
+                stroke_color="green",
+                background_image=Image.fromarray(control_image_rgb),
+                update_streamlit=True,
+                height=control_image.shape[0],
+                width=control_image.shape[1],
+                drawing_mode="circle",
+                key=f"control_canvas_{key}",
+            )
 
-        st.write(f"Annotate the Experimental Image {key}:")
-        experimental_canvas_result = st_canvas(
-            fill_color="rgba(255, 165, 0, 0.3)",
-            stroke_width=2,
-            stroke_color="yellow",
-            background_image=Image.fromarray(experimental_image_rgb),
-            update_streamlit=True,
-            height=experimental_image.shape[0],
-            width=experimental_image.shape[1],
-            drawing_mode="circle",
-            key=f"experimental_canvas_{key}",
-        )
+            st.write(f"Annotate the Experimental Image {key}:")
+            experimental_canvas_result = st_canvas(
+                fill_color="rgba(255, 165, 0, 0.3)",
+                stroke_width=2,
+                stroke_color="yellow",
+                background_image=Image.fromarray(experimental_image_rgb),
+                update_streamlit=True,
+                height=experimental_image.shape[0],
+                width=experimental_image.shape[1],
+                drawing_mode="circle",
+                key=f"experimental_canvas_{key}",
+            )
 
-        # Extract the annotations from the canvas result
-        if control_canvas_result.json_data is not None:
-            control_nucleus_positions.extend([(shape['left'], shape['top']) for shape in control_canvas_result.json_data['objects']])
-        if experimental_canvas_result.json_data is not None:
-            experimental_nucleus_positions.extend([(shape['left'], shape['top']) for shape in experimental_canvas_result.json_data['objects']])
+            # Extract the annotations from the canvas result
+            if control_canvas_result.json_data is not None:
+                control_nucleus_positions.extend([(shape['left'], shape['top']) for shape in control_canvas_result.json_data['objects']])
+            if experimental_canvas_result.json_data is not None:
+                experimental_nucleus_positions.extend([(shape['left'], shape['top']) for shape in experimental_canvas_result.json_data['objects']])
 
     st.write(f"Control Nucleus positions: {control_nucleus_positions}")
     st.write(f"Number of Control Nucleus positions: {len(control_nucleus_positions)}")
@@ -168,7 +168,6 @@ if all_images_uploaded:
             plt.tight_layout()
             st.pyplot(fig)
         else:
-            st.warning("Please annotate all control and experimental images.")
+            st.warning("Please annotate all uploaded control and experimental images.")
 else:
-    st.warning("Please upload all required images.")
-
+    st.warning("Please upload at least one control and one experimental image.")
