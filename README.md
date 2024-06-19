@@ -21,6 +21,8 @@ This Python script performs analysis on the distances between nucleus positions 
 - pillow
 - streamlit-drawable-canvas
 
+### Note: Delete the cloned venv folder then start the setup process to avoid errors.
+
 # Setting up terminal
 1. create python environment:
     ```bash
