@@ -52,27 +52,47 @@ The Nuclear Distance Analysis application allows users to upload control and exp
   - A3R: [Upload Experimental Image A3R]
   - A4L: [Upload Experimental Image A4L]
   - A4R: [Upload Experimental Image A4R]
-            
-![Optional Caption](C:/Users/fcbwa/OneDrive/Desktop/NNA/st_analysis/images/upload.png)
+""")
+st.image("C:/Users/fcbwa/OneDrive/Desktop/NNA/nuclear_distance/images/upload.png", caption="Upload")
 
-            
+st.markdown("""
+                 
 #### Step 2: Annotate Nuclei Positions
 - For each uploaded image, you will be provided with a canvas.
 - Use the drawing tool to mark the nuclei positions by drawing circles.
 - The control images will have green circles, and the experimental images will have yellow circles.
+""")
 
+#create columns for images
+col1, col2 = st.columns(2)
+
+# Display control image in first column
+with col1:
+    st.image("C:/Users/fcbwa/OneDrive/Desktop/NNA/nuclear_distance/images/control.png", caption="Control annotation")
+
+# Display experimental image in second column
+with col2:
+    st.image("C:/Users/fcbwa/OneDrive/Desktop/NNA/nuclear_distance/images/exp.png", caption="Experiments annotation")
+
+
+st.markdown("""
 #### Step 3: Analyze Nuclei Distances
 - After annotating all images, click the "Process" button.
 - The app will process the annotations, calculate the distances between nuclei and generate visualizations, including scatter plots, histograms, and KDE plots.
 - Click the "" button to 
-
+""")
+st.image("C:/Users/fcbwa/OneDrive/Desktop/NNA/nuclear_distance/images/process.png", caption="Processing")
+st.markdown("""
 ### Visualizations
 - **Scatter Plot**: Shows the distances between nuclei pairs for both control and experimental images.
 - **Histogram**: Displays the frequency distribution of distances for control and experimental images separately.
 - **Combined Histogram**: A combined view of both histograms.
 - **KDE Plot**: Shows the density distribution of distances.
 - **Merged Nucleus Positions**: Displays the annotated nuclei positions on a single plot.
+""")
+st.image("C:/Users/fcbwa/OneDrive/Desktop/NNA/nuclear_distance/images/results.png", caption="Upload")
 
+st.markdown("""
 ### Requirements
 Ensure you have the following Python packages installed:
 ```plaintext
@@ -86,7 +106,9 @@ pandas
 seaborn
 pillow
 streamlit-drawable-canvas
+""")
 
+st.markdown("""
 ### Contact
 For any issues or questions, please contact fcb.adnan10@gmail.com.
 
